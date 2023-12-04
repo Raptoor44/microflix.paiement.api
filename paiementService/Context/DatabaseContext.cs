@@ -9,7 +9,7 @@ namespace paiementService.Context
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseMySQL("server=wp-mysql;port=3306;database=paiement;user=paiement-service;password=paiement-service");
+            optionsBuilder.UseMySQL("server=localhost;port=10000;database=paiement;user=paiement-service;password=paiement-service");
         }
     }
 }

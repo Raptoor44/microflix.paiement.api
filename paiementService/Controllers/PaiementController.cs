@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using paiementService.Context;
 using paiementService.Models;
 using paiementService.Models.Commands;
@@ -41,12 +42,16 @@ namespace paiementService.Controllers
                     _context.Update(paiement);
                     await _context.SaveChangesAsync();
 
+                    await SendLogAsync("Le paiement a été enregistré pour " + paiement.Montant.ToString() + " avec l'utilisateur : " + paiement.UtilisateurId);
+
                     return Ok("PostPaiement, le paiement est terminé");
                 }
                 else
                 {
                     _context.Update(paiement);
                     await _context.SaveChangesAsync();
+
+                    await SendLogAsync("Le paiement n'a pas été enregistré pour " + paiement.Montant.ToString() + " avec l'utilisateur : " + paiement.UtilisateurId);
 
                     return Ok("PostPaiement, le paiement est actualisé");
                 }
@@ -73,11 +78,52 @@ namespace paiementService.Controllers
 
             if (paiement != null)
             {
+                await SendLogAsync("Requête pour l'utilisateur : " + utilisateurId + " d'un paiement total de " + paiement.Montant + " ,film payé " + paiement.IsPayed);
+
                 return paiement.IsPayed;
             }
             else
             {
+                await SendLogAsync("Requête pour l'utilisateur : " + utilisateurId + " ,le film " + filmId + " n'est pas présent");
+
                 return Ok("Erreur, le paiement n'est pas présent en base de données");
+            }
+        }
+
+        private async Task SendLogAsync(string message)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                string apiUrl = "https://localhost:7211/api/Log";
+
+                var requestData = new
+                {
+                    ServiceName = "Paiement",
+                    Log = message,
+                };
+
+                var jsonContent = JsonConvert.SerializeObject(requestData);
+
+                var content = new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
+
+                try
+                {
+                    var response = await httpClient.PostAsync(apiUrl, content);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var responseContent = await response.Content.ReadAsStringAsync();
+                        Console.WriteLine(responseContent);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Error: {response.StatusCode} - {response.ReasonPhrase}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Exception: {ex.Message}");
+                }
             }
         }
     }
