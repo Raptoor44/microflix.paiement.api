@@ -8,7 +8,7 @@ EXPOSE 443
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["paiementService.csproj", "paiementService/"]
+COPY ["paiementService/paiementService.csproj", "paiementService/"]
 RUN dotnet restore "./paiementService/./paiementService.csproj"
 COPY . .
 WORKDIR "/src/paiementService"
@@ -16,9 +16,9 @@ RUN dotnet build "./paiementService.csproj" -c $BUILD_CONFIGURATION -o /app/buil
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./paiementService.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./Produit.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "paiementService.dll"]
+ENTRYPOINT ["dotnet", "Produit.dll"]

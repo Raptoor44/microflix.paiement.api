@@ -1,21 +1,26 @@
 name: dockercompose1988605618865814156
 services:
   paiementservice:
-    build:
-      context: C:\Users\Joachim Ecole\Desktop\IIA\microservices\projet final\servicePaiement\paiementService
-      dockerfile: paiementService/Dockerfile
+    depends_on:
+      wp-mysql:
+        condition: service_healthy
+        required: true
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: https://+:443;http://+:80
-    image: paiementservice
+    image: raptoor44/paiementservice
     networks:
-      default: null
+      wp-nwk: null
     ports:
       - mode: ingress
         target: 80
         protocol: tcp
       - mode: ingress
         target: 443
+        protocol: tcp
+      - mode: ingress
+        target: 443
+        published: "44383"
         protocol: tcp
     volumes:
       - type: bind
@@ -30,6 +35,37 @@ services:
         read_only: true
         bind:
           create_host_path: true
+  wp-mysql:
+    environment:
+      MYSQL_DATABASE: paiement
+      MYSQL_PASSWORD: paiement-service
+      MYSQL_RANDOM_ROOT_PASSWORD: "1"
+      MYSQL_USER: paiement-service
+    healthcheck:
+      test:
+        - CMD
+        - mysqladmin
+        - ping
+        - -h
+        - localhost
+      timeout: 3s
+      retries: 10
+    image: mysql
+    networks:
+      wp-nwk: null
+    ports:
+      - mode: ingress
+        target: 3306
+        published: "10000"
+        protocol: tcp
+    volumes:
+      - type: volume
+        source: wp-db-data
+        target: /var/lib/mysql
+        volume: {}
 networks:
-  default:
-    name: dockercompose1988605618865814156_default
+  wp-nwk:
+    name: dockercompose1988605618865814156_wp-nwk
+volumes:
+  wp-db-data:
+    name: dockercompose1988605618865814156_wp-db-data

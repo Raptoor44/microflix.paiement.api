@@ -21,13 +21,17 @@ services:
       - wp-db-data:/var/lib/mysql
     ports:
       - "10000:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 3s
+      retries: 10
     
   paiementservice:
-    image: raptoor44/paiementservice
-    build:
-      context: .
-      dockerfile: paiementService/Dockerfile
+    image: ${DOCKER_REGISTRY-}paiementservice
     networks:
       - wp-nwk
     ports:
       - "44383:443"
+    depends_on:
+      wp-mysql:
+        condition: service_healthy
