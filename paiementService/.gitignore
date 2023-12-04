@@ -1,0 +1,151 @@
+# Binaries
+obj/
+bin/
+
+# Visual Studio files
+.vscode/
+*.suo
+*.ntvs*
+*.nupkg
+*.resharper
+*.sln.docstates
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.suo
+*.sdf
+*.suo
+*.user
+
+# Mono Auto Generated Files
+mono_crash.*
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# VS Code directories
+.vscode/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Windows shortcuts
+*.lnk
+
+# JetBrains Rider
+.idea/
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sdf
+*.suo
+*.user
+*.ide
+
+# Rider
+.idea/
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sdf
+*.suo
+*.user
+*.ide
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sdf
+*.suo
+*.user
+*.userosscache
+
+# SQL Server files
+*.mdf
+*.ldf
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Windows shortcuts
+*.lnk
+
+# JetBrains Rider
+.idea/
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sdf
+*.suo
+*.user
+*.ide
+
+# Rider
+.idea/
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sdf
+*.suo
+*.user
+*.ide
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sdf
+*.suo
+*.user
+*.userosscache
+
+# SQL Server files
+*.mdf
+*.ldf
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sdf
+*.suo
+*.user
+*.userosscache
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# VS Code directories
+.vscode/

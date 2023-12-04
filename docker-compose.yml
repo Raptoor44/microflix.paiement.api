@@ -1,4 +1,4 @@
-version: '3.4'
+version: '1.0'
 
 networks:
   wp-nwk: {}
@@ -23,7 +23,7 @@ services:
       - "10000:3306"
     
   paiementservice:
-    image: ${DOCKER_REGISTRY-}paiementservice
+    image: raptoor44/paiementservice
     build:
       context: .
       dockerfile: paiementService/Dockerfile
