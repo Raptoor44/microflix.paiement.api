@@ -515,3 +515,19 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/paiementService/obj/Container/ContainerDevelopmentMode.cache
+/paiementService/obj/Debug/net7.0/ref/paiementService.dll
+/paiementService/obj/Debug/net7.0/refint/paiementService.dll
+/paiementService/obj/Debug/net7.0/apphost.exe
+/paiementService/obj/Debug/net7.0/paiementService.AssemblyInfo.cs
+/paiementService/obj/Debug/net7.0/paiementService.AssemblyInfoInputs.cache
+/paiementService/obj/Debug/net7.0/paiementService.csproj.AssemblyReference.cache
+/paiementService/obj/Debug/net7.0/paiementService.csproj.FileListAbsolute.txt
+/paiementService/obj/Debug/net7.0/paiementService.assets.cache
+/paiementService/obj/Debug/net7.0/paiementService.csproj.CoreCompileInputs.cache
+/paiementService/obj/Debug/net7.0/paiementService.dll
+/paiementService/obj/Debug/net7.0/paiementService.pdb
+/paiementService/obj/Debug/net7.0/paiementService.sourcelink.json
+/paiementService/obj/paiementService.csproj.nuget.dgspec.json
+/paiementService/obj/project.assets.json
+/paiementService/obj/project.nuget.cache
