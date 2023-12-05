@@ -39,13 +39,34 @@
       "useSSL": true
     }
   },
-  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "eureka": {
+    "client": {
+      "serviceUrl": "http://localhost:8761/eureka/",
+      "shouldFetchRegistry": true,
+      "shouldRegisterWithEureka": true
+    },
+    "instance": {},
+    "$schema": "https://json.schemastore.org/launchsettings.json",
+    "iisSettings": {
+      "windowsAuthentication": false,
+      "anonymousAuthentication": true,
+      "iisExpress": {
+        "applicationUrl": "http://localhost:12523",
+        "sslPort": 44383
+      }
+    }
+  },
+  "spring": {
+    "application": {
+      "name": "MicroflixPaiementApi"
+    }
+  },
   "iisSettings": {
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:12523",
-      "sslPort": 44383
+      "applicationUrl": "http://localhost:49938/",
+      "sslPort": 44363
     }
   }
 }

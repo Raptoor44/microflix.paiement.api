@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using paiementService.Context;
+using Steeltoe.Discovery.Client;
+using Steeltoe.Discovery.Eureka;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +11,8 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddServiceDiscovery(options => options.UseEureka());
 
 builder.Services.AddDbContext<DatabaseContext>();
 

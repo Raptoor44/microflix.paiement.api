@@ -1,8 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using paiementService.Context;
 using paiementService.Models;
 using paiementService.Models.Commands;
+using paiementService.Models.Queries;
+using Steeltoe.Common.Discovery;
+using Steeltoe.Discovery;
+using System.Text;
+using System.Text.Json;
 
 namespace paiementService.Controllers
 {
@@ -11,10 +15,12 @@ namespace paiementService.Controllers
     public class PaiementController : ControllerBase
     {
         private readonly DatabaseContext _context;
+        private DiscoveryHttpClientHandler _handler;
 
-        public PaiementController(DatabaseContext context)
+        public PaiementController(DatabaseContext context, IDiscoveryClient client)
         {
             _context = context;
+            _handler = new DiscoveryHttpClientHandler(client);
         }
 
         [HttpPost]
@@ -25,49 +31,88 @@ namespace paiementService.Controllers
                 return Problem("L'entité 'DatabaseContext.Paiements' est null.");
             }
 
-            if (_context.Paiements.Where(paiement => paiement.FilmId == param.FilmId && paiement.UtilisateurId == param.UtilisateurId).Any())
+            // Make a request to the UtilisateurController to get a user with a specific ID
+            var utilisateurId = param.UtilisateurId; // Assuming you have the user ID from the PaiementCommand parameter
+            string utilisateurApiUrl = "http://MicroflixUtilisateurApi/api/utilisateurs/" + utilisateurId;
+
+            // Use HttpClient to make the request
+
+            var client = new HttpClient(_handler, false);
+            var response = await client.GetAsync(utilisateurApiUrl);
+
+            if (response.IsSuccessStatusCode)
             {
-                Paiement paiement = _context.Paiements.Where(paiement => paiement.FilmId == param.FilmId && paiement.UtilisateurId == param.UtilisateurId).FirstOrDefault();
+                var userJson = await response.Content.ReadAsStringAsync();
+                var user = JsonSerializer.Deserialize<User>(userJson);
 
-                paiement.Montant += param.Montant;
+                // Now, you have the 'user' object of type User
+                // You can use 'user' as needed in your code
 
-                if (paiement.Montant > param.TotalPrix)
+                if (user.solde > param.Montant)
                 {
-                    return BadRequest("Erreur, le montant payé est trop important");
+
+                    if (_context.Paiements.Where(paiement => paiement.FilmId == param.FilmId && paiement.UtilisateurId == param.UtilisateurId).Any())
+                    {
+                        Paiement paiement = _context.Paiements.Where(paiement => paiement.FilmId == param.FilmId && paiement.UtilisateurId == param.UtilisateurId).FirstOrDefault();
+
+                        paiement.Montant += param.Montant;
+
+                        if (paiement.Montant > param.TotalPrix)
+                        {
+                            await SendLogAsync("Le paiement envoyé pour " + paiement.Montant.ToString() + " avec l'utilisateur : " + paiement.UtilisateurId + " est trop important ");
+
+                            return BadRequest("Erreur, le montant payé est trop important");
+                        }
+                        else if (paiement.Montant == param.TotalPrix)
+                        {
+                            paiement.IsPayed = true;
+
+                            _context.Update(paiement);
+                            await _context.SaveChangesAsync();
+
+                            await SendLogAsync("Le paiement a été enregistré pour " + paiement.Montant.ToString() + " avec l'utilisateur : " + paiement.UtilisateurId);
+
+                            return Ok("PostPaiement, le paiement est terminé");
+                        }
+                        else
+                        {
+                            _context.Update(paiement);
+                            await _context.SaveChangesAsync();
+
+                            await SendLogAsync("Le paiement n'a pas été enregistré pour " + paiement.Montant.ToString() + " avec l'utilisateur : " + paiement.UtilisateurId);
+
+                            return Ok("PostPaiement, le paiement est actualisé");
+                        }
+                    }
+                    else
+                    {
+                        Paiement paiement = new Paiement();
+
+                        paiement.UtilisateurId = param.UtilisateurId;
+                        paiement.FilmId = param.FilmId;
+                        paiement.Montant = param.Montant;
+
+                        _context.Paiements.Add(paiement);
+                        await _context.SaveChangesAsync();
+
+                        await SendLogAsync("Le paiement du film " + param.FilmId + " d'un montant de : " + param.Montant + " pour l'utilisateur : " + param.UtilisateurId + " a été enregistré");
+                        await PostDebitHistoryAsync(param.UtilisateurId, param.FilmId, param.Montant);
+
+                        return Ok("PostPaiement : le nouveau paiement a été créer");
+                    }
+
                 }
-                else if (paiement.Montant == param.TotalPrix)
                 {
-                    paiement.IsPayed = true;
+                    await SendLogAsync("L'utilisateur n'a pas assez de solde, Montant de la transaction :  " + param.Montant + " Montant du solde : " + user.solde);
 
-                    _context.Update(paiement);
-                    await _context.SaveChangesAsync();
-
-                    await SendLogAsync("Le paiement a été enregistré pour " + paiement.Montant.ToString() + " avec l'utilisateur : " + paiement.UtilisateurId);
-
-                    return Ok("PostPaiement, le paiement est terminé");
-                }
-                else
-                {
-                    _context.Update(paiement);
-                    await _context.SaveChangesAsync();
-
-                    await SendLogAsync("Le paiement n'a pas été enregistré pour " + paiement.Montant.ToString() + " avec l'utilisateur : " + paiement.UtilisateurId);
-
-                    return Ok("PostPaiement, le paiement est actualisé");
+                    return Problem("L'utilisateur n'a pas assez de solde, Montant de la transaction :  " + param.Montant + " Montant du solde : " + user.solde);
                 }
             }
             else
             {
-                Paiement paiement = new Paiement();
-
-                paiement.UtilisateurId = param.UtilisateurId;
-                paiement.FilmId = param.FilmId;
-                paiement.Montant = param.Montant;
-
-                _context.Paiements.Add(paiement);
-                await _context.SaveChangesAsync();
-
-                return Ok("PostPaiement : le nouveau paiement a été créer");
+                // Handle the case where the request to the utilisateur_service fails
+                // You might want to return an error or take appropriate action
+                return Problem($"Error fetching user with ID {utilisateurId} from utilisateur_service. Status code: {response.StatusCode}");
             }
         }
 
@@ -90,41 +135,24 @@ namespace paiementService.Controllers
             }
         }
 
-        private async Task SendLogAsync(string message)
+        private async Task SendLogAsync(string log)
         {
-            using (var httpClient = new HttpClient())
+            var message = JsonSerializer.Serialize(new Logs { ServiceName = "PaiementService", Log = log });
+            var client = new HttpClient(_handler, false);
+            await client.PostAsync("http://MicroflixLogApi/api/Log", new StringContent(message, Encoding.UTF8, "application/json"));
+        }
+
+        public async Task PostDebitHistoryAsync(int userId, int movieId, decimal amount)
+        {
+            var message = JsonSerializer.Serialize(new DebitHistory
             {
-                string apiUrl = "https://localhost:7211/api/Log";
-
-                var requestData = new
-                {
-                    ServiceName = "Paiement",
-                    Log = message,
-                };
-
-                var jsonContent = JsonConvert.SerializeObject(requestData);
-
-                var content = new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
-
-                try
-                {
-                    var response = await httpClient.PostAsync(apiUrl, content);
-
-                    if (response.IsSuccessStatusCode)
-                    {
-                        var responseContent = await response.Content.ReadAsStringAsync();
-                        Console.WriteLine(responseContent);
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Error: {response.StatusCode} - {response.ReasonPhrase}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Exception: {ex.Message}");
-                }
-            }
+                UserId = userId,
+                MovieId = movieId,
+                Amount = amount
+            });
+            var client = new HttpClient(_handler, false);
+            await client.PostAsync("http://MicroflixHistoryApi/api/DebitHistory",
+                new StringContent(message, Encoding.UTF8, "application/json"));
         }
     }
 }
