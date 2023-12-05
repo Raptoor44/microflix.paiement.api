@@ -142,7 +142,7 @@ namespace paiementService.Controllers
             await client.PostAsync("http://MicroflixLogApi/api/Log", new StringContent(message, Encoding.UTF8, "application/json"));
         }
 
-        public async Task PostDebitHistoryAsync(int userId, int movieId, decimal amount)
+        private async Task PostDebitHistoryAsync(int userId, int movieId, decimal amount)
         {
             var message = JsonSerializer.Serialize(new DebitHistory
             {
