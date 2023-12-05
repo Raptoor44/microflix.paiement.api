@@ -531,3 +531,11 @@ FodyWeavers.xsd
 /paiementService/obj/paiementService.csproj.nuget.dgspec.json
 /paiementService/obj/project.assets.json
 /paiementService/obj/project.nuget.cache
+/paiementService/bin/Debug/net7.0/paiementService.dll
+/paiementService/bin/Debug/net7.0/paiementService.exe
+/paiementService/bin/Debug/net7.0/paiementService.pdb
+/.vs/ProjectEvaluation/paiementservice.projects.v7.bin
+/.vs/ProjectEvaluation/paiementservice.metadata.v7.bin
+/.vs/paiementService/v17/.suo
+/.vs/paiementService/v17/.futdcache.v2
+/.vs/paiementService/DesignTimeBuild/.dtbcache.v2
