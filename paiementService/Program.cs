@@ -14,6 +14,8 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddServiceDiscovery(options => options.UseEureka());
 
+builder.Services.AddDbContext<DatabaseContext>();
+
 var app = builder.Build();
 
 app.Services.CreateScope().ServiceProvider.GetRequiredService<DatabaseContext>().Database.Migrate();
